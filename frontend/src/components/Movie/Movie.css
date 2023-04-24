@@ -1,0 +1,29 @@
+.movie-poster-image {
+    border-radius: 15px;
+    height: 400px;
+    box-shadow: white;
+    box-shadow: 0px 0px 10px 1px white;
+}
+
+.movie-noposter-image {
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px;
+    height: 400px;
+    width: 266.66px;
+    color: white;
+    box-shadow: 0px 0px 10px 1px white;
+}
+
+.movie-title {
+    margin-top: 10px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.movie-release-date {
+    margin-top: 10px;
+    font-size: 15px;
+}
