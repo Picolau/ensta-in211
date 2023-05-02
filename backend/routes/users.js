@@ -13,7 +13,7 @@ router.get('/', function (req, res) {
     });
 });
 
-router.post('/new', function (req, res) {
+router.post('/', function (req, res) {
   const userRepository = appDataSource.getRepository(User);
   const newUser = userRepository.create({
     email: req.body.email,
@@ -24,7 +24,7 @@ router.post('/new', function (req, res) {
   userRepository
     .insert(newUser)
     .then(function (newDocument) {
-      res.status(201).json(newDocument);
+      res.status(201).json(newUser);
     })
     .catch(function (error) {
       console.error(error);
@@ -36,6 +36,44 @@ router.post('/new', function (req, res) {
         res.status(500).json({ message: 'Error while creating the user' });
       }
     });
+});
+
+// returns user by id
+router.get('/:userId', function (req, res) {
+  const user_id = req.params.userId;
+  appDataSource
+    .getRepository(User)
+    .findOneBy({ id : user_id })
+    .then(function (user) {
+      if (user) {
+        res.json({ user: user });
+      } else {
+        res.status(404).json({ message: 'User not found' });
+      }
+    })
+    .catch(function (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error while retrieving the user' });
+    });
+});
+
+// update user of DB 
+router.put('/:userId', async function (req, res) {
+  const userRepository = appDataSource.getRepository(User);
+  const user_id = req.params.userId;
+  const userToUpdate = await userRepository.findOneBy({ id: user_id });
+
+  if (userToUpdate) {
+    userToUpdate.email = req.body.email || userToUpdate.email;
+    userToUpdate.firstname = req.body.firstname || userToUpdate.firstname;
+    userToUpdate.lastname = req.body.lastname || userToUpdate.lastname;
+
+    await userRepository.update({ id: user_id }, userToUpdate);
+
+    res.json({ user: userToUpdate });
+  } else {
+    res.status(404).json({ message: 'User not found' });
+  }
 });
 
 router.delete('/:userId', function (req, res) {
