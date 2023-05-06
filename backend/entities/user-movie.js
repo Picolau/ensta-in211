@@ -14,11 +14,8 @@ const UserMovie = new typeorm.EntitySchema({
     movie_id: {
       type: String,
     },
-    comment: {
-      type: String,
-    },
-    liked: {
-      type: Boolean,
+    rating: {
+      type: Number,
     },
   },
 });

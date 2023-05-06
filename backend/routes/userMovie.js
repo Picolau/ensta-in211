@@ -3,7 +3,55 @@ import { appDataSource } from '../datasource.js';
 import axios from 'axios';
 import UserMovie from '../entities/user-movie.js';
 import  User from '../entities/user.js';
+import Movie from '../entities/movie.js';
 const router = express.Router();
+
+//func to rank a film
+router.post('/rateMovie/:userId', async (req, res) => {
+  const movieRepository = appDataSource.getRepository(Movie);
+  const newMovie = movieRepository.create({
+    id: req.body.movieId,
+    title: req.body.title,
+    release_date: req.body.release_date,
+    poster_path: req.body.poster_path,
+    overview: req.body.overview,
+    vote_average: req.body.vote_average,
+  });
+
+  //checking if there is a movie
+  appDataSource
+    .getRepository(Movie)
+    .findOneBy({ id : req.body.movieId })
+    .then(async function (movie){
+      if (movie) {
+        console.log("Movie already in DB")
+      } else {
+        console.log("Movie not in DB, creating...")
+        const movieCreated = await axios.post(`http://localhost:8080/api/movies`, newMovie);
+      }
+    })
+    .catch(function (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error while retrieving the movie' });
+    });
+
+    const userMovieRepository = appDataSource.getRepository(UserMovie);
+    const newUserMovie = userMovieRepository.create({
+      user_id: req.params.userId,
+      movie_id: req.body.movieId,
+      rating: req.body.rating,
+    });
+    
+    try{
+      const UserMovieCreated = await axios.post(`http://localhost:8080/api/userMovie`, newUserMovie);
+      res.status(201).json(UserMovieCreated.data);
+    }catch(error){
+      console.error(error);
+      res.status(500).json({ message: 'Error while creating userMovie' });
+    }
+
+});
+
 
 //returns all user-movies of tha DB
 router.get('/', async function (req, res) {
@@ -84,8 +132,7 @@ router.post('/', async function (req, res) {
     const newUserMovie = userMovieRepository.create({
       user_id: req.body.user_id,
       movie_id: req.body.movie_id,
-      comment: req.body.comment,
-      liked: req.body.liked,
+      rating: req.body.rating,
     });
     await userMovieRepository.save(newUserMovie);
     res.status(201).json(newUserMovie);
@@ -105,8 +152,7 @@ router.put('/:userMovieId', async function (req, res) {
     }
     userMovieToUpdate.user_id = req.body.user_id || userMovieToUpdate.user_id;
     userMovieToUpdate.movie_id = req.body.movie_id || userMovieToUpdate.movie_id;
-    userMovieToUpdate.comment = req.body.comment || userMovieToUpdate.comment;
-    userMovieToUpdate.liked = req.body.liked || userMovieToUpdate.liked;
+    userMovieToUpdate.rating = req.body.rating || userMovieToUpdate.rating;
     await userMovieRepository.save(userMovieToUpdate);
     res.json({ userMovie: userMovieToUpdate });
   } catch (error) {
