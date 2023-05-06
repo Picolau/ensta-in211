@@ -1,5 +1,6 @@
 import express from 'express';
 import { appDataSource } from '../datasource.js';
+import axios from 'axios';
 import UserMovie from '../entities/user-movie.js';
 import  User from '../entities/user.js';
 const router = express.Router();
@@ -48,6 +49,21 @@ router.get('/user/:userId', function (req, res) {
       res.status(500).json({ message: 'Error while retrieving userMovies' });
     });
 });
+
+//checks if a user (given in URL) liked a movie (given in body)
+//returns {"hasAlike" : true/false}
+router.get('/hasALike/:userId', async (req, res) => {
+  const user_id = req.params.userId;
+  const movie_id = req.body.movieId;
+  
+  const moviesOfAnUser = await axios.get(`http://localhost:8080/api/userMovie/user/${user_id}`);
+  
+  const hasMovieId = moviesOfAnUser.data.userMovies.some((userMovie) => userMovie.movie_id === movie_id);
+
+  hasMovieId ? (res.json({ "hasAlike" : true })) : (res.json({ "hasALike" : false }));
+
+});
+
 
 //returns user-movie with given movieId
 router.get('/movie/:movie_id', async (request, response) => {
