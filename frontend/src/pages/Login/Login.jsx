@@ -1,8 +1,10 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { useState } from 'react';
 
+import axios from 'axios';
 import img from '../../../images/watchin-movie.gif';
 import './Login.css';
+import { URL_API } from '../../App';
 
 const STEP_EMAIL = 'email';
 const STEP_NAME = 'name';
@@ -16,18 +18,61 @@ function Login() {
   const [password, setPassword] = useState('');
   const [step, setStep] = useState(STEP_EMAIL);
   const [userAction, setUserAction] = useState(ACTION_LOGIN);
+  const [errorMessage, setErrorMessage] = useState(null);
 
-  const loginApiRequest = () => {
-    // TODO: make api request to login user
+  const loginApiRequest = async () => {
+    try {
+      const response = await axios.post(`${URL_API}/users/login`, {
+        email: email,
+        password: password,
+      });
+
+      return response.data;
+    } catch (e) {
+      console.error(e);
+      setErrorMessage('Login failed, try again later');
+
+      return null;
+    }
   };
 
-  const signupApiRequest = () => {
-    // TODO: make api request to signup user
+  const signupApiRequest = async () => {
+    try {
+      const response = await axios.post(`${URL_API}/users/signup`, {
+        email: email,
+        username: name,
+        password: password,
+      });
+
+      return response.data;
+    } catch (e) {
+      console.error(e);
+      setErrorMessage('Signup failed, try again later');
+
+      return null;
+    }
   };
 
-  const nextStep = () => {
+  const userExistsRequest = async () => {
+    try {
+      const response = await axios.post(`${URL_API}/users/exists`, {
+        identifier: email,
+      });
+
+      return response.data.userExists;
+    } catch (e) {
+      console.error(e);
+      setErrorMessage('Something went wrong, try again later.');
+
+      return false;
+    }
+  };
+
+  const nextStep = async () => {
+    setErrorMessage(null);
+
     if (step === STEP_EMAIL) {
-      const userAlreadyExists = true;
+      const userAlreadyExists = await userExistsRequest();
       if (userAlreadyExists) {
         setUserAction(ACTION_LOGIN);
         setStep(STEP_PASSWORD);
@@ -39,9 +84,13 @@ function Login() {
       setStep(STEP_PASSWORD);
     } else if (step === STEP_PASSWORD) {
       if (userAction === ACTION_LOGIN) {
-        loginApiRequest();
+        const user = await loginApiRequest();
+        sessionStorage.setItem('user', user);
+        console.log('User logou', user);
       } else if (userAction === ACTION_SIGNUP) {
-        signupApiRequest();
+        const user = await signupApiRequest();
+        sessionStorage.setItem('user', user);
+        console.log('User signou', user);
       }
     }
   };
@@ -142,6 +191,9 @@ function Login() {
           tabIndex={0}
         />
         <div className="Small-text">{getMessage()}</div>
+        {errorMessage && (
+          <div className="Small-text Error-text">{errorMessage}</div>
+        )}
       </header>
     </div>
   );

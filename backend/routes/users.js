@@ -23,8 +23,8 @@ router.post('/signup', function (req, res) {
 
   userRepository
     .insert(newUser)
-    .then((user) => {
-      res.status(201).json(user);
+    .then(() => {
+      res.status(201).json(newUser);
     })
     .catch((error) => {
       console.error(error);
@@ -41,28 +41,16 @@ router.post('/signup', function (req, res) {
 // returns user by id
 router.post('/login', async function (req, res) {
   const userRepository = appDataSource.getRepository(User);
-  const identifier = req.body.identifier;
-  const password = req.body.password;
 
-  let user = null;
-  // user identifying by email
-  if (identifier.contains('@')) {
-    user = await userRepository.findOneBy({
-      email: identifier,
-      password: password,
-    });
-  } else {
-    // user identifying by username
-    user = await userRepository.findOneBy({
-      username: identifier,
-      password: password,
-    });
-  }
+  const user = await userRepository.findOneBy({
+    email: req.body.email,
+    password: req.body.password,
+  });
 
   if (user) {
-    res.json({ user: user });
+    res.status(201).json(user);
   } else {
-    res.status(401).json({ message: 'Password incorrect' });
+    res.status(401).json({ message: 'Password or identifier incorrect' });
   }
 });
 
@@ -90,10 +78,10 @@ router.get('/:userId', function (req, res) {
 });
 
 // returns if user exists with email or username
-router.get('/userExists/:userIdenfier', function (req, res) {
-  const userIdentifier = req.params.userIdenfier;
+router.post('/exists', function (req, res) {
+  const userIdentifier = req.body.identifier;
   const obj = {};
-  if (userIdentifier.contains('@')) {
+  if (userIdentifier.includes('@')) {
     obj['email'] = userIdentifier;
   } else {
     obj['username'] = userIdentifier;
