@@ -2,12 +2,66 @@ import express from 'express';
 import { appDataSource } from '../datasource.js';
 import UserMovie from '../entities/user-movie.js';
 import Movie from '../entities/movie.js';
+import User from '../entities/user.js';
 const router = express.Router();
+
+function compareScoreDescending(a, b) {
+  return b.score - a.score;
+}
+
+router.get('/matches/:userId', async (req, res) => {
+
+  //gets all userMovies of a user -> movies that an user liked
+  const userMovieRepository = appDataSource.getRepository(UserMovie);
+  const userMoviesOfUser = await userMovieRepository.find({ where: { user_id: req.params.userId } })
+  
+  let usersSawSameMovie = []
+  //for each one of movies liked see people who liked the same movie
+  for(const movieLiked of userMoviesOfUser){
+    const userMovie_ofPeopleSawSameMovie = await userMovieRepository.createQueryBuilder('userMovie')
+    .where('userMovie.movie_id = :movie_id', { movie_id: movieLiked.movie_id })
+    .andWhere('userMovie.user_id != :user_id', { user_id: req.params.userId })
+    .getMany();
+
+    //for each person that saw the same movie, add this person to a list 
+    //of people that saw the same movie, with the movies that each one saw and were the same
+
+    for(const userMovie_ofPersonSawSameMovie of userMovie_ofPeopleSawSameMovie){
+
+      let userSawSameMovie = usersSawSameMovie.find(samMovie => samMovie.userId === userMovie_ofPersonSawSameMovie.user_id);
+
+      if (userSawSameMovie) {
+        userSawSameMovie.sameMoviesRated.push(userMovie_ofPersonSawSameMovie)
+      } else {
+        usersSawSameMovie.push({
+          "userId": userMovie_ofPersonSawSameMovie.user_id,
+          "sameMoviesRated" : [userMovie_ofPersonSawSameMovie],
+          "score": 0
+        })
+      }
+    }
+  }
+
+  //calculating the score of each person -> mesure of distance:
+  //for each filme => |user_rate - person_rate|/number_of_rating 
+  for(const userSawSameMovie of usersSawSameMovie){
+    for(const personRating of userSawSameMovie.sameMoviesRated){
+      let usersRating = userMoviesOfUser.find(userMovieOfUser => userMovieOfUser.movie_id === personRating.movie_id)
+      userSawSameMovie.score += Math.abs(usersRating.rating - personRating.rating)
+    }
+    //4 is the max_score -> (4 - score)/4 gives the score in percentage  
+    userSawSameMovie.score = (4 - (userSawSameMovie.score / userSawSameMovie.sameMoviesRated.length))/4 
+  }
+
+  usersSawSameMovie.sort(compareScoreDescending);
+
+  return res.json(usersSawSameMovie);
+});
+
 
 //func to rank a film
 router.post('/rateMovie', async (req, res) => {
   const movieRepository = appDataSource.getRepository(Movie);
-  console.log(req.body);
   const newMovie = movieRepository.create({
     id: req.body.movie.id,
     title: req.body.movie.title,
@@ -23,9 +77,7 @@ router.post('/rateMovie', async (req, res) => {
     .findOneBy({ id: req.body.movie.id })
     .then(async function (movie) {
       if (movie) {
-        console.log('Movie already in DB');
       } else {
-        console.log('Movie not in DB, creating...');
         await movieRepository.insert(newMovie);
       }
     })
@@ -97,18 +149,6 @@ router.get('/user/:userId', function (req, res) {
       console.error(error);
       res.status(500).json({ message: 'Error while retrieving userMovies' });
     });
-});
-
-//returns user-movie with given movieId
-router.get('/movie/:movie_id', async (request, response) => {
-  const { movie_id } = request.params;
-
-  const userMovieRepository = appDataSource.getRepository(UserMovie);
-  const userMovies = await userMovieRepository.find({
-    where: { movie_id },
-  });
-
-  return response.json(userMovies);
 });
 
 router.post('/', async function (req, res) {
