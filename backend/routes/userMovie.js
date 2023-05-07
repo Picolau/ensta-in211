@@ -1,7 +1,6 @@
 import express from 'express';
 import { appDataSource } from '../datasource.js';
 import UserMovie from '../entities/user-movie.js';
-import  User from '../entities/user.js';
 const router = express.Router();
 
 //returns all user-movies of tha DB
@@ -18,10 +17,12 @@ router.get('/', async function (req, res) {
 
 //returns one user-movie by id
 router.get('/:userMovieId', async function (req, res) {
-  const user_movie_id = req.params.userMovieId
+  const user_movie_id = req.params.userMovieId;
   try {
     const userMovieRepository = appDataSource.getRepository(UserMovie);
-    const userMovie = await userMovieRepository.findOneBy({ id: user_movie_id });
+    const userMovie = await userMovieRepository.findOneBy({
+      id: user_movie_id,
+    });
     if (userMovie) {
       res.json({ userMovie });
     } else {
@@ -61,7 +62,6 @@ router.get('/movie/:movie_id', async (request, response) => {
   return response.json(userMovies);
 });
 
-
 router.post('/', async function (req, res) {
   try {
     const userMovieRepository = appDataSource.getRepository(UserMovie);
@@ -80,15 +80,18 @@ router.post('/', async function (req, res) {
 });
 
 router.put('/:userMovieId', async function (req, res) {
-  const user_movie_id = req.params.userMovieId
+  const user_movie_id = req.params.userMovieId;
   try {
     const userMovieRepository = appDataSource.getRepository(UserMovie);
-    const userMovieToUpdate = await userMovieRepository.findOneBy({ id: user_movie_id });
+    const userMovieToUpdate = await userMovieRepository.findOneBy({
+      id: user_movie_id,
+    });
     if (!userMovieToUpdate) {
       return res.status(404).json({ message: 'User movie not found' });
     }
     userMovieToUpdate.user_id = req.body.user_id || userMovieToUpdate.user_id;
-    userMovieToUpdate.movie_id = req.body.movie_id || userMovieToUpdate.movie_id;
+    userMovieToUpdate.movie_id =
+      req.body.movie_id || userMovieToUpdate.movie_id;
     userMovieToUpdate.comment = req.body.comment || userMovieToUpdate.comment;
     userMovieToUpdate.liked = req.body.liked || userMovieToUpdate.liked;
     await userMovieRepository.save(userMovieToUpdate);
@@ -102,7 +105,9 @@ router.put('/:userMovieId', async function (req, res) {
 router.delete('/:userMovieId', async function (req, res) {
   try {
     const userMovieRepository = appDataSource.getRepository(UserMovie);
-    const deleteResult = await userMovieRepository.delete({ id: req.params.userMovieId });
+    const deleteResult = await userMovieRepository.delete({
+      id: req.params.userMovieId,
+    });
     if (deleteResult.affected === 0) {
       return res.status(404).json({ message: 'User movie not found' });
     }

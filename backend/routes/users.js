@@ -43,7 +43,7 @@ router.get('/:userId', function (req, res) {
   const user_id = req.params.userId;
   appDataSource
     .getRepository(User)
-    .findOneBy({ id : user_id })
+    .findOneBy({ id: user_id })
     .then(function (user) {
       if (user) {
         res.json({ user: user });
@@ -57,7 +57,7 @@ router.get('/:userId', function (req, res) {
     });
 });
 
-// update user of DB 
+// update user of DB
 router.put('/:userId', async function (req, res) {
   const userRepository = appDataSource.getRepository(User);
   const user_id = req.params.userId;

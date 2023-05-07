@@ -4,6 +4,7 @@ import About from './pages/About/About';
 import './App.css';
 import { Root } from './components/Root/Root';
 import Counter from './pages/Counter/Counter';
+import Login from './pages/Login/Login';
 import Users from './pages/Users/Users';
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="counter" element={<Counter />} />
+        <Route path="login" element={<Login />} />
         <Route path="users" element={<Users />} />
         <Route path="about" element={<About />} />
       </Routes>

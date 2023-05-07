@@ -15,11 +15,11 @@ router.get('/', function (req, res) {
 });
 
 router.get('/:movieId', function (req, res) {
-  const movie_id = req.params.movieId
+  const movie_id = req.params.movieId;
   appDataSource
     .getRepository(Movie)
-    .findOneBy({ id : movie_id })
-    .then(function (movie){
+    .findOneBy({ id: movie_id })
+    .then(function (movie) {
       if (movie) {
         res.json({ movie: movie });
       } else {
@@ -32,7 +32,7 @@ router.get('/:movieId', function (req, res) {
     });
 });
 
-//creates a movie in the database 
+//creates a movie in the database
 router.post('/', async function (req, res) {
   const movieRepository = appDataSource.getRepository(Movie);
   const newMovie = movieRepository.create({
@@ -65,14 +65,17 @@ router.put('/:movieId', async function (req, res) {
   const movieRepository = appDataSource.getRepository(Movie);
   const movie_id = req.params.movieId;
   const movieToUpdate = await movieRepository.findOneBy({ id: movie_id });
-  console.log(movieToUpdate)
+  console.log(movieToUpdate);
 
   if (movieToUpdate) {
     movieToUpdate.title = req.body.title || movieToUpdate.title;
-    movieToUpdate.release_date = req.body.release_date || movieToUpdate.release_date;
-    movieToUpdate.poster_path = req.body.poster_path || movieToUpdate.poster_path;
+    movieToUpdate.release_date =
+      req.body.release_date || movieToUpdate.release_date;
+    movieToUpdate.poster_path =
+      req.body.poster_path || movieToUpdate.poster_path;
     movieToUpdate.overview = req.body.overview || movieToUpdate.overview;
-    movieToUpdate.vote_average = req.body.vote_average || movieToUpdate.vote_average;
+    movieToUpdate.vote_average =
+      req.body.vote_average || movieToUpdate.vote_average;
 
     await movieRepository.update({ id: movie_id }, movieToUpdate);
 
@@ -82,18 +85,17 @@ router.put('/:movieId', async function (req, res) {
   }
 });
 
-
 //deletes a movie of the database
- router.delete('/:movieId', function (req, res) {
-   appDataSource
-     .getRepository(Movie)
-     .delete({ id: req.params.movieId })
-     .then(function () {
-       res.status(200).json({ message: 'Movie successfully deleted' });
-     })
-     .catch(function () {
-       res.status(500).json({ message: 'Error while deleting the movie' });
-     });
- });
+router.delete('/:movieId', function (req, res) {
+  appDataSource
+    .getRepository(Movie)
+    .delete({ id: req.params.movieId })
+    .then(function () {
+      res.status(200).json({ message: 'Movie successfully deleted' });
+    })
+    .catch(function () {
+      res.status(500).json({ message: 'Error while deleting the movie' });
+    });
+});
 
 export default router;

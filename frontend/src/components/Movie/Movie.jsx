@@ -1,9 +1,22 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+
+import { useState } from 'react';
 import './Movie.css';
+import MovieInfo from './MovieInfo/MovieInfo';
 
 function Movie({ movie, className }) {
+  const [isShowingInfo, setIsShowingInfo] = useState(false);
+
   return (
     <>
-      <div className={`movie-container ${className}`}>
+      {isShowingInfo && (
+        <MovieInfo movie={movie} onClose={() => setIsShowingInfo(false)} />
+      )}
+      <div
+        onClick={() => setIsShowingInfo(true)}
+        className={`movie-container ${className}`}
+      >
         {movie.poster_path && (
           <img
             className="movie-poster-image"

@@ -2,6 +2,11 @@
     border-radius: 15px;
     height: 400px;
     box-shadow: white;
+    box-shadow: 0px 0px 2px 1px white;
+    cursor: pointer;
+}
+
+.movie-poster-image:hover, .movie-noposter-image:hover {
     box-shadow: 0px 0px 10px 1px white;
 }
 
@@ -14,7 +19,8 @@
     height: 400px;
     width: 266.66px;
     color: white;
-    box-shadow: 0px 0px 10px 1px white;
+    box-shadow: 0px 0px 2px 1px white;
+    cursor: pointer;
 }
 
 .movie-title {
