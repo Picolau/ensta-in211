@@ -20,7 +20,7 @@ const Movie = new typeorm.EntitySchema({
       type: String,
     },
     vote_average: {
-      type: Number,
+      type: 'float',
     },
   },
 });

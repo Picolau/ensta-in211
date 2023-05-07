@@ -5,21 +5,22 @@ import Movie from '../entities/movie.js';
 const router = express.Router();
 
 //func to rank a film
-router.post('/rateMovie/:userId', async (req, res) => {
+router.post('/rateMovie', async (req, res) => {
   const movieRepository = appDataSource.getRepository(Movie);
+  console.log(req.body);
   const newMovie = movieRepository.create({
-    id: req.body.movieId,
-    title: req.body.title,
-    release_date: req.body.release_date,
-    poster_path: req.body.poster_path,
-    overview: req.body.overview,
-    vote_average: req.body.vote_average,
+    id: req.body.movie.id,
+    title: req.body.movie.title,
+    release_date: req.body.movie.release_date,
+    poster_path: req.body.movie.poster_path,
+    overview: req.body.movie.overview,
+    vote_average: req.body.movie.vote_average,
   });
 
   //checking if there is a movie
   appDataSource
     .getRepository(Movie)
-    .findOneBy({ id: req.body.movieId })
+    .findOneBy({ id: req.body.movie.id })
     .then(async function (movie) {
       if (movie) {
         console.log('Movie already in DB');
@@ -31,19 +32,20 @@ router.post('/rateMovie/:userId', async (req, res) => {
     .catch(function (error) {
       console.error(error);
       res.status(500).json({ message: 'Error while retrieving the movie' });
+
+      return;
     });
 
   const userMovieRepository = appDataSource.getRepository(UserMovie);
   const newUserMovie = userMovieRepository.create({
-    user_id: req.params.userId,
-    movie_id: req.body.movieId,
+    user_id: req.body.user.id,
+    movie_id: req.body.movie.id,
     rating: req.body.rating,
   });
 
   try {
-    const UserMovieCreated = await userMovieRepository.save(newUserMovie);
-    console.log(UserMovieCreated);
-    res.status(201).json(UserMovieCreated);
+    await userMovieRepository.save(newUserMovie);
+    res.status(201).json(newUserMovie);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error while creating userMovie' });

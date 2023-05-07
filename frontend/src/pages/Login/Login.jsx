@@ -1,10 +1,11 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 
 import axios from 'axios';
 import img from '../../../images/watchin-movie.gif';
 import './Login.css';
 import { URL_API } from '../../App';
+import AuthContext from '../../hooks/useSession';
 
 const STEP_EMAIL = 'email';
 const STEP_NAME = 'name';
@@ -13,6 +14,7 @@ const ACTION_LOGIN = 'login';
 const ACTION_SIGNUP = 'signup';
 
 function Login() {
+  const { setLoggedUser } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
@@ -54,43 +56,42 @@ function Login() {
   };
 
   const userExistsRequest = async () => {
-    try {
-      const response = await axios.post(`${URL_API}/users/exists`, {
-        identifier: email,
-      });
+    const response = await axios.post(`${URL_API}/users/exists`, {
+      identifier: email,
+    });
 
-      return response.data.userExists;
-    } catch (e) {
-      console.error(e);
-      setErrorMessage('Something went wrong, try again later.');
-
-      return false;
-    }
+    return response.data.userExists;
   };
 
   const nextStep = async () => {
     setErrorMessage(null);
 
     if (step === STEP_EMAIL) {
-      const userAlreadyExists = await userExistsRequest();
-      if (userAlreadyExists) {
-        setUserAction(ACTION_LOGIN);
-        setStep(STEP_PASSWORD);
-      } else {
-        setUserAction(ACTION_SIGNUP);
-        setStep(STEP_NAME);
+      try {
+        const userAlreadyExists = await userExistsRequest();
+        if (userAlreadyExists) {
+          setUserAction(ACTION_LOGIN);
+          setStep(STEP_PASSWORD);
+        } else {
+          setUserAction(ACTION_SIGNUP);
+          setStep(STEP_NAME);
+        }
+      } catch (e) {
+        console.error(e);
+        setErrorMessage('Something went wrong, try again later.');
       }
     } else if (step === STEP_NAME) {
       setStep(STEP_PASSWORD);
     } else if (step === STEP_PASSWORD) {
+      let user = null;
       if (userAction === ACTION_LOGIN) {
-        const user = await loginApiRequest();
-        sessionStorage.setItem('user', user);
-        console.log('User logou', user);
+        user = await loginApiRequest();
       } else if (userAction === ACTION_SIGNUP) {
-        const user = await signupApiRequest();
-        sessionStorage.setItem('user', user);
-        console.log('User signou', user);
+        user = await signupApiRequest();
+      }
+
+      if (user) {
+        setLoggedUser(user);
       }
     }
   };

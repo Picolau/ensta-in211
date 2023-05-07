@@ -2,21 +2,33 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/mouse-events-have-key-events */
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import './MovieInfo.css';
 import axios from 'axios';
+import { URL_API } from '../../../App';
+import AuthContext from '../../../hooks/useSession';
 
 function MovieInfo({ movie, onClose }) {
+  const { loggedUser } = useContext(AuthContext);
   const [rating, setRating] = useState(0);
   const [isRating, setIsRating] = useState(false);
   const [mouseRating, setMouseRating] = useState(0);
 
   useEffect(() => {}, []);
 
-  const rate = (val) => {
-    // axios.post(`${process.env.VITE_BACKDEND_URL}/rateMovie/`);
-    setRating(val);
-    setIsRating(false);
+  const rate = async (val) => {
+    try {
+      const response = await axios.post(`${URL_API}/userMovie/rateMovie`, {
+        movie: movie,
+        user: loggedUser,
+        rating: val,
+      });
+      console.log(response.data);
+      setRating(val);
+      setIsRating(false);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const mouseRate = (val) => {
