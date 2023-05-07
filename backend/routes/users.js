@@ -13,20 +13,20 @@ router.get('/', function (req, res) {
     });
 });
 
-router.post('/', function (req, res) {
+router.post('/signup', function (req, res) {
   const userRepository = appDataSource.getRepository(User);
   const newUser = userRepository.create({
     email: req.body.email,
-    firstname: req.body.firstname,
-    lastname: req.body.lastname,
+    username: req.body.username,
+    password: req.body.password,
   });
 
   userRepository
     .insert(newUser)
-    .then(function (newDocument) {
-      res.status(201).json(newUser);
+    .then((user) => {
+      res.status(201).json(user);
     })
-    .catch(function (error) {
+    .catch((error) => {
       console.error(error);
       if (error.code === '23505') {
         res.status(400).json({
@@ -39,6 +39,34 @@ router.post('/', function (req, res) {
 });
 
 // returns user by id
+router.post('/login', async function (req, res) {
+  const userRepository = appDataSource.getRepository(User);
+  const identifier = req.body.identifier;
+  const password = req.body.password;
+
+  let user = null;
+  // user identifying by email
+  if (identifier.contains('@')) {
+    user = await userRepository.findOneBy({
+      email: identifier,
+      password: password,
+    });
+  } else {
+    // user identifying by username
+    user = await userRepository.findOneBy({
+      username: identifier,
+      password: password,
+    });
+  }
+
+  if (user) {
+    res.json({ user: user });
+  } else {
+    res.status(401).json({ message: 'Password incorrect' });
+  }
+});
+
+// returns user by id
 router.get('/:userId', function (req, res) {
   const user_id = req.params.userId;
   appDataSource
@@ -46,7 +74,11 @@ router.get('/:userId', function (req, res) {
     .findOneBy({ id: user_id })
     .then(function (user) {
       if (user) {
-        res.json({ user: user });
+        res.json({
+          id: user.id,
+          email: user.email,
+          username: user.username,
+        });
       } else {
         res.status(404).json({ message: 'User not found' });
       }
@@ -54,6 +86,34 @@ router.get('/:userId', function (req, res) {
     .catch(function (error) {
       console.error(error);
       res.status(500).json({ message: 'Error while retrieving the user' });
+    });
+});
+
+// returns if user exists with email or username
+router.get('/userExists/:userIdenfier', function (req, res) {
+  const userIdentifier = req.params.userIdenfier;
+  const obj = {};
+  if (userIdentifier.contains('@')) {
+    obj['email'] = userIdentifier;
+  } else {
+    obj['username'] = userIdentifier;
+  }
+
+  appDataSource
+    .getRepository(User)
+    .findOneBy(obj)
+    .then(function (user) {
+      if (user) {
+        res.json({ userExists: true });
+      } else {
+        res.json({ userExists: false });
+      }
+    })
+    .catch(function (error) {
+      console.error(error);
+      res
+        .status(500)
+        .json({ message: 'Error while retrieving user existance' });
     });
 });
 

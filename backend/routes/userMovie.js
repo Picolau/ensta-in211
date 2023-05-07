@@ -1,5 +1,4 @@
 import express from 'express';
-import axios from 'axios';
 import { appDataSource } from '../datasource.js';
 import UserMovie from '../entities/user-movie.js';
 import Movie from '../entities/movie.js';
@@ -26,10 +25,7 @@ router.post('/rateMovie/:userId', async (req, res) => {
         console.log('Movie already in DB');
       } else {
         console.log('Movie not in DB, creating...');
-        const movieCreated = await axios.post(
-          `http://localhost:8080/api/movies`,
-          newMovie
-        );
+        await movieRepository.insert(newMovie);
       }
     })
     .catch(function (error) {
@@ -45,11 +41,9 @@ router.post('/rateMovie/:userId', async (req, res) => {
   });
 
   try {
-    const UserMovieCreated = await axios.post(
-      `http://localhost:8080/api/userMovie`,
-      newUserMovie
-    );
-    res.status(201).json(UserMovieCreated.data);
+    const UserMovieCreated = await userMovieRepository.save(newUserMovie);
+    console.log(UserMovieCreated);
+    res.status(201).json(UserMovieCreated);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error while creating userMovie' });
@@ -101,23 +95,6 @@ router.get('/user/:userId', function (req, res) {
       console.error(error);
       res.status(500).json({ message: 'Error while retrieving userMovies' });
     });
-});
-
-//checks if a user (given in URL) liked a movie (given in body)
-//returns {"hasAlike" : true/false}
-router.get('/hasALike/:userId', async (req, res) => {
-  const user_id = req.params.userId;
-  const movie_id = req.body.movieId;
-
-  const moviesOfAnUser = await axios.get(
-    `http://localhost:8080/api/userMovie/user/${user_id}`
-  );
-
-  const hasMovieId = moviesOfAnUser.data.userMovies.some(
-    (userMovie) => userMovie.movie_id === movie_id
-  );
-
-  hasMovieId ? res.json({ hasAlike: true }) : res.json({ hasALike: false });
 });
 
 //returns user-movie with given movieId

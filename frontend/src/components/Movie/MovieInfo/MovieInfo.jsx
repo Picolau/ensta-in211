@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import './MovieInfo.css';
+import axios from 'axios';
 
 function MovieInfo({ movie, onClose }) {
   const [rating, setRating] = useState(0);
@@ -13,6 +14,7 @@ function MovieInfo({ movie, onClose }) {
   useEffect(() => {}, []);
 
   const rate = (val) => {
+    // axios.post(`${process.env.VITE_BACKDEND_URL}/rateMovie/`);
     setRating(val);
     setIsRating(false);
   };
