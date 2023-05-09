@@ -8,18 +8,22 @@
     background-color: rgba(0, 0, 0, 0.5); /* Add a semi-transparent black overlay */
 }
 
-.movie-info-content {
+.movie-info-modal {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #fff;
     padding: 20px;
     border-radius: 5px;
     background-color: rgba(0, 0, 0, 0.8); /* Add a semi-transparent black overlay */
+    box-shadow: 0px 0px 10px 1px white;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.movie-info-content {
     display: flex;
     justify-content: flex-start;
-    box-shadow: 0px 0px 10px 1px white;
 }
 
 .movie-info-poster-image {
@@ -77,5 +81,46 @@
 .movie-info-close {
     position: absolute;
     right: 20px;
+    cursor: pointer;
+}
+
+.Comment-input-text {
+    text-decoration: none;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    border-bottom: 1px solid white;
+    padding-bottom: 7px;
+    width: 500px;
+    font-size: 20px;
+    font-weight: 400;
+    text-align: center;
+    margin-top: 20px;
+    height: 100%;
+}
+
+.Comment-section {
+    margin-top: 10px;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: transparent; 
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: white; 
+    border-radius: 2px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
     cursor: pointer;
 }
