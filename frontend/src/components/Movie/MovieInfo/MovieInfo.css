@@ -101,7 +101,37 @@
 }
 
 .Comment-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin-top: 10px;
+}
+
+.User-comments {
+    text-align: left;
+    width: 100%;
+}
+
+.User-comment-wrapper {
+    margin-top: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid white;
+}
+
+.User-comments .user {
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    margin-bottom: 16px;
+}
+
+.User-comments .user img {
+    margin-right: 16px;
+}
+
+.User-comments .comment {
+    font-size: 15px;
+    margin-bottom: 16px;
 }
 
 /* width */

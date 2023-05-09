@@ -7,6 +7,7 @@ import './MovieInfo.css';
 import axios from 'axios';
 import { URL_API } from '../../../App';
 import AuthContext from '../../../hooks/useSession';
+import userImg from './user.png';
 
 function MovieInfo({ movie, onClose }) {
   const { loggedUser } = useContext(AuthContext);
@@ -31,12 +32,12 @@ function MovieInfo({ movie, onClose }) {
   const fetchComments = async () => {
     try {
       const response = await axios.get(
-        `${URL_API}/userMovie?user_id=${loggedUser.id}&movie_id=${movie.id}`
+        `${URL_API}/userMovie/comment?movie_id=${movie.id}`
       );
 
-      setRating(response.data.rating);
+      setUserComments(response.data);
     } catch (e) {
-      setRating(0);
+      setUserComments([]);
     }
   };
 
@@ -77,6 +78,16 @@ function MovieInfo({ movie, onClose }) {
         user: loggedUser,
         comment: comment,
       });
+
+      const userComment = {
+        comment: comment,
+        user: {
+          username: loggedUser.username,
+        },
+      };
+
+      setComment('');
+      setUserComments([userComment, ...userComments]);
     } catch (e) {
       console.error(e);
     }
@@ -157,6 +168,19 @@ function MovieInfo({ movie, onClose }) {
             />
             <div className="Small-text">
               Press <strong>enter</strong> to send!
+            </div>
+            <div className="User-comments">
+              {userComments.map((userComment, idx) => {
+                return (
+                  <div className="User-comment-wrapper" key={idx}>
+                    <div className="user">
+                      <img src={userImg} alt="" />
+                      {userComment.user.username}
+                    </div>
+                    <div className="comment">{userComment.comment}</div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

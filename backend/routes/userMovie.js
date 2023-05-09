@@ -12,22 +12,29 @@ function compareScoreDescending(a, b) {
 router.get('/comment', async (req, res) => {
   const userMovieRepository = appDataSource.getRepository(UserMovie);
   const userRepository = appDataSource.getRepository(User);
+  const movieRepository = appDataSource.getRepository(Movie);
 
-  const userMoviesOfFilm = await userMovieRepository
-    .createQueryBuilder('userMovie')
-    .where('userMovie.movie_id = :movie_id', {
-      movie_id: req.query.movie_id,
-    })
-    .andWhere('userMovie.comment IS NOT NULL')
-    .getMany();
+  const exists = await movieRepository.exist({ id: req.query.movie_id });
 
-  for (const userMovieOfFilm of userMoviesOfFilm) {
-    userMovieOfFilm.user = await userRepository.findOneBy({
-      id: userMovieOfFilm.user_id,
-    });
+  if (exists) {
+    const userMoviesOfFilm = await userMovieRepository
+      .createQueryBuilder('userMovie')
+      .where('userMovie.movie_id = :movie_id', {
+        movie_id: req.query.movie_id,
+      })
+      .andWhere('userMovie.comment IS NOT NULL')
+      .getMany();
+
+    for (const userMovieOfFilm of userMoviesOfFilm) {
+      userMovieOfFilm.user = await userRepository.findOneBy({
+        id: userMovieOfFilm.user_id,
+      });
+    }
+
+    return res.json(userMoviesOfFilm);
   }
 
-  res.json(userMoviesOfFilm);
+  return res.json([]);
 });
 
 router.post('/comment', async (req, res) => {
@@ -106,8 +113,8 @@ router.get('/recommendations', async (req, res) => {
       user_movie_ids: userMoviesOfUser.map((userMovie) => userMovie.movie_id),
     })
     .orderBy('rating', 'DESC')
-    .take(3)
-    .skip((page - 1) * 3)
+    .take(5)
+    .skip((page - 1) * 5)
     .getMany();
 
   //sorting recommender films by his rating

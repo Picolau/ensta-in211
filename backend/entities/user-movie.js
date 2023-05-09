@@ -16,6 +16,7 @@ const UserMovie = new typeorm.EntitySchema({
     },
     rating: {
       type: Number,
+      nullable: true,
     },
     comment: {
       type: String,
