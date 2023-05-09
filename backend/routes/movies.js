@@ -6,6 +6,10 @@ import UserMovie from '../entities/user-movie.js';
 
 const router = express.Router();
 
+function compareRatingDescending(a,b){
+  return b.rating - a.rating;
+}
+
 //returns all movies of the database
 router.get('/', async function (req, res) {
   const userMovieRepository = appDataSource.getRepository(UserMovie);
@@ -40,9 +44,13 @@ router.get('/', async function (req, res) {
     const userMovies = await userMovieRepository
       .createQueryBuilder('user_movie')
       .where({ user_id: user_id })
+      .orderBy("rating", "DESC")
       .take(10)
       .skip((page - 1) * 10)
       .getMany();
+
+    //userMovies.sort(compareRatingDescending);;
+
     const movies = [];
     for (const userMovie of userMovies) {
       const movie = await movieRepository.findOneBy({ id: userMovie.movie_id });
