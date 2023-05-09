@@ -9,6 +9,27 @@ function compareScoreDescending(a, b) {
   return b.score - a.score;
 }
 
+router.get('/comment', async (req, res) => {
+  const userMovieRepository = appDataSource.getRepository(UserMovie);
+  const userRepository = appDataSource.getRepository(User);
+
+  const userMoviesOfFilm = await userMovieRepository
+    .createQueryBuilder('userMovie')
+    .where('userMovie.movie_id = :movie_id', {
+      movie_id: req.query.movie_id,
+    })
+    .andWhere('userMovie.comment IS NOT NULL')
+    .getMany();
+
+  for (const userMovieOfFilm of userMoviesOfFilm) {
+    userMovieOfFilm.user = await userRepository.findOneBy({
+      id: userMovieOfFilm.user_id,
+    });
+  }
+
+  res.json(userMoviesOfFilm);
+});
+
 router.post('/comment', async (req, res) => {
   const movieRepository = appDataSource.getRepository(Movie);
   const newMovie = movieRepository.create({
