@@ -45,8 +45,6 @@ router.get('/', async function (req, res) {
       .skip((page - 1) * 10)
       .getMany();
 
-    //userMovies.sort(compareRatingDescending);;
-
     const movies = [];
     for (const userMovie of userMovies) {
       const movie = await movieRepository.findOneBy({ id: userMovie.movie_id });
