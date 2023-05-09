@@ -32,9 +32,26 @@ a {
   width: 100%;
 }
 
-.Matches-user-info {
-  width: 80%;
+.Matches-user-wrapper {
   padding-bottom: 20px;
   margin-bottom: 20px;
   border-bottom: 2px solid white;
+}
+
+.Matches-user-recommendations {
+  display: flex;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.Matches-user-movie-recommendation {
+  margin-right: 50px;
+}
+
+.Matches-user-movie-recommendation img {
+  height: 300px;
+}
+
+.Matches-user-movie-recommendation div {
+  display: none;
 }

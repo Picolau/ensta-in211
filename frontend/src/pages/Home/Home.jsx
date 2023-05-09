@@ -65,7 +65,6 @@ function Home() {
     axios
       .get(`${URL_API}/movies?username=${username}&page=${page}`)
       .then((response) => {
-        console.log(response.data);
         setMovies(response.data);
       })
       .catch((error) => {
