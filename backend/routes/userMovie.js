@@ -29,12 +29,13 @@ router.get('/recommendations', async (req, res) => {
     const recommanderUserMovies = await userMovieRepository.createQueryBuilder("userMovie")
     .where("userMovie.user_id = :recommander_id", { recommander_id: req.query.recommander_id }) //QUERYYYYYYYYY
     .andWhere("userMovie.movie_id NOT IN (:...user_movie_ids)", { user_movie_ids: userMoviesOfUser.map(userMovie => userMovie.movie_id) })
+    .orderBy("rating", "DESC")
     .take(3)
     .skip((page - 1) * 3)      
     .getMany()
     
     //sorting recommander films by his rating
-    recommanderUserMovies.sort(compareRatingDescending);
+    //recommanderUserMovies.sort(compareRatingDescending);
 
     const recommendations = []
 
