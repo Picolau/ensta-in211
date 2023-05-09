@@ -9,6 +9,49 @@ function compareScoreDescending(a, b) {
   return b.score - a.score;
 }
 
+function compareRatingDescending(a,b){
+  return b.rating - a.rating;
+}
+
+router.get('/recommendations', async (req, res) => {
+    //gets all userMovies of a user -> movies that an user liked
+    const userMovieRepository = appDataSource.getRepository(UserMovie);
+    const movieRepository = appDataSource.getRepository(Movie);
+
+    const page = req.query.page || 1; //QUERYYYYYY
+
+    //userMovies of user
+    const userMoviesOfUser = await userMovieRepository.find({
+      where: { user_id: req.query.user_id }, //QUERYYYYYYYYY
+    });
+    
+    //userMovies of the recommandateur
+    const recommanderUserMovies = await userMovieRepository.createQueryBuilder("userMovie")
+    .where("userMovie.user_id = :recommander_id", { recommander_id: req.query.recommander_id }) //QUERYYYYYYYYY
+    .andWhere("userMovie.movie_id NOT IN (:...user_movie_ids)", { user_movie_ids: userMoviesOfUser.map(userMovie => userMovie.movie_id) })
+    .take(3)
+    .skip((page - 1) * 3)      
+    .getMany()
+    
+    //sorting recommander films by his rating
+    recommanderUserMovies.sort(compareRatingDescending);
+
+    const recommendations = []
+
+    for(const recommanderUserMovie of recommanderUserMovies){
+      
+        let recommendedFilm = await movieRepository.findOne({
+          where: { id: recommanderUserMovie.movie_id },
+        })
+        recommendedFilm.recommender_rating = recommanderUserMovie.rating
+        recommendations.push(recommendedFilm);
+    }
+    
+
+    return res.json(recommendations);
+})
+
+
 router.get('/matches', async (req, res) => {
   //gets all userMovies of a user -> movies that an user liked
   const userMovieRepository = appDataSource.getRepository(UserMovie);
