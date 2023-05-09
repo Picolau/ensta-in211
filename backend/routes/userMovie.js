@@ -9,9 +9,63 @@ function compareScoreDescending(a, b) {
   return b.score - a.score;
 }
 
-function compareRatingDescending(a,b){
-  return b.rating - a.rating;
-}
+//FAZER ROTA DE RECUPERAR COMENTARIOS PELO ID DE UM FILME!!!!!!!!!!!!!!!!!!!
+
+
+router.post('/comment', async (req, res) => {
+  const movieRepository = appDataSource.getRepository(Movie);
+  const newMovie = movieRepository.create({
+    id: req.body.movie.id,
+    title: req.body.movie.title,
+    release_date: req.body.movie.release_date,
+    poster_path: req.body.movie.poster_path,
+    overview: req.body.movie.overview,
+    vote_average: req.body.movie.vote_average,
+  });
+
+  //checking if there is a movie
+  appDataSource
+    .getRepository(Movie)
+    .findOneBy({ id: req.body.movie.id })
+    .then(async function (movie) {
+      if (!movie) {
+        await movieRepository.insert(newMovie);
+      }
+    })
+    .catch(function (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error while retrieving the movie' });
+
+      return;
+    });
+
+  const userMovieRepository = appDataSource.getRepository(UserMovie);
+  let userMovie = await userMovieRepository.findOneBy({
+    user_id: req.body.user.id,
+    movie_id: req.body.movie.id,
+  });
+
+  try {
+    if (userMovie) {
+      userMovie.comment = req.body.comment;
+      await userMovieRepository.update({ id: userMovie.id }, userMovie);
+    } else {
+      userMovie = userMovieRepository.create({
+        user_id: req.body.user.id,
+        movie_id: req.body.movie.id,
+        comment: req.body.comment,
+      });
+
+      await userMovieRepository.save(userMovie);
+    }
+
+    res.status(201).json(userMovie);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error while creating userMovie' });
+  }
+})
+
 
 router.get('/recommendations', async (req, res) => {
     //gets all userMovies of a user -> movies that an user liked
@@ -34,9 +88,6 @@ router.get('/recommendations', async (req, res) => {
     .skip((page - 1) * 3)      
     .getMany()
     
-    //sorting recommander films by his rating
-    //recommanderUserMovies.sort(compareRatingDescending);
-
     const recommendations = []
 
     for(const recommanderUserMovie of recommanderUserMovies){
@@ -279,6 +330,7 @@ router.post('/', async function (req, res) {
       user_id: req.body.user_id,
       movie_id: req.body.movie_id,
       rating: req.body.rating,
+      comment: req.body.comment,
     });
     await userMovieRepository.save(newUserMovie);
     res.status(201).json(newUserMovie);
