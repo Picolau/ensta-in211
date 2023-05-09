@@ -8,10 +8,36 @@
   width: 100%;
   z-index: 1;
   background: black;
+  padding-top: 10px;
+}
+
+img {
+  height: 30px;
+}
+
+.Welcome-user {
+  position: absolute;
+  left: 10px;
+  display: flex;
+}
+
+.Welcome-user div {
+  margin-left: 10px;
+}
+
+.Logout-user {
+  position: absolute;
+  right: 20px;
+  cursor: pointer;
 }
 
 .Link {
-  font-weight: 400;
-  color: #61dafb;
+  font-weight: 500;
+  color: white;
   margin-right: 30px;
+  text-decoration: none;
+}
+
+.Link:hover {
+  text-shadow: white 1px 0 10px;
 }

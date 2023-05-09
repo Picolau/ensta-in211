@@ -84,3 +84,23 @@
 }
 
 
+.Page-control-wrapper {
+  display: flex;
+  flex-direction: row;
+  width: 50%;
+  justify-content: space-around;
+}
+
+.Page-control-wrapper input {
+  outline: none;
+  text-decoration: underline;
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  color: white;
+  cursor: pointer;
+}
+
+.Page-control-wrapper input:hover {
+  text-shadow: white 1px 0 10px;
+}

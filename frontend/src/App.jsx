@@ -1,11 +1,9 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import Home from './pages/Home/Home';
-import About from './pages/About/About';
+import Matches from './pages/Matches/Matches';
 import './App.css';
 import { Root } from './components/Root/Root';
-import Counter from './pages/Counter/Counter';
 import Login from './pages/Login/Login';
-import Users from './pages/Users/Users';
 import AuthContext, { useSession } from './hooks/useSession';
 
 function App() {
@@ -19,13 +17,20 @@ function App() {
             path="/"
             element={loggedUser ? <Home /> : <Navigate to="/login" replace />}
           />
-          <Route path="counter" element={<Counter />} />
+          <Route
+            path="/home"
+            element={loggedUser ? <Home /> : <Navigate to="/login" replace />}
+          />
           <Route
             path="login"
             element={loggedUser ? <Navigate to="/" replace /> : <Login />}
           />
-          <Route path="users" element={<Users />} />
-          <Route path="about" element={<About />} />
+          <Route
+            path="matches"
+            element={
+              loggedUser ? <Matches /> : <Navigate to="/login" replace />
+            }
+          />
         </Routes>
       </Root>
     </AuthContext.Provider>

@@ -14,7 +14,21 @@ function MovieInfo({ movie, onClose }) {
   const [isRating, setIsRating] = useState(false);
   const [mouseRating, setMouseRating] = useState(0);
 
-  useEffect(() => {}, []);
+  const fetchRating = async () => {
+    try {
+      const response = await axios.get(
+        `${URL_API}/userMovie?user_id=${loggedUser.id}&movie_id=${movie.id}`
+      );
+
+      setRating(response.data.rating);
+    } catch (e) {
+      setRating(0);
+    }
+  };
+
+  useEffect(() => {
+    fetchRating();
+  }, []);
 
   const rate = async (val) => {
     try {

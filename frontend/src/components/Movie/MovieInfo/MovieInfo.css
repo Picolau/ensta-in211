@@ -20,12 +20,11 @@
     display: flex;
     justify-content: flex-start;
     box-shadow: 0px 0px 10px 1px white;
-    height: 400px;
 }
 
 .movie-info-poster-image {
     border-radius: 15px;
-    height: 100%;
+    height: inherit;
 }
 
 .movie-info-title {
@@ -53,6 +52,7 @@
     margin-left: 20px;
     display: flex;
     width: 350px;
+    text-align: left;
     /* justify-content: flex-start; */
     flex-direction: column;
     align-items: flex-start;
@@ -70,8 +70,7 @@
 }
 
 .movie-info-rating-wrapper {
-    position: absolute;
-    bottom: 20px;
+    margin-top: 20px;
     text-align: left;
 }
 

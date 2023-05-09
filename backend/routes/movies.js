@@ -1,17 +1,58 @@
 import express from 'express';
 import { appDataSource } from '../datasource.js';
 import Movie from '../entities/movie.js';
+import User from '../entities/user.js';
+import UserMovie from '../entities/user-movie.js';
 
 const router = express.Router();
 
 //returns all movies of the database
-router.get('/', function (req, res) {
-  appDataSource
-    .getRepository(Movie)
-    .find({})
-    .then(function (movies) {
-      res.json({ movies: movies });
-    });
+router.get('/', async function (req, res) {
+  const userMovieRepository = appDataSource.getRepository(UserMovie);
+  const userRepository = appDataSource.getRepository(User);
+  const movieRepository = appDataSource.getRepository(Movie);
+  const page = req.query.page || 1;
+  let user_id = req.query.user_id;
+  if (!user_id) {
+    const username = req.query.username;
+
+    if (username) {
+      try {
+        const user = await userRepository.findOneBy({ username: username });
+        user_id = user.id;
+      } catch (error) {
+        console.error(error);
+        res.status(404).json({ message: 'User not found' });
+      }
+    }
+  }
+
+  if (!user_id) {
+    movieRepository
+      .find({})
+      .then(function (movies) {
+        res.json({ movies: movies });
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+  } else {
+    const userMovies = await userMovieRepository
+      .createQueryBuilder('user_movie')
+      .where({ user_id: user_id })
+      .take(10)
+      .skip((page - 1) * 10)
+      .getMany();
+    const movies = [];
+    for (const userMovie of userMovies) {
+      const movie = await movieRepository.findOneBy({ id: userMovie.movie_id });
+      console.log(movie);
+      movie['rating'] = userMovie.rating;
+      movies.push(movie);
+    }
+
+    res.json(movies);
+  }
 });
 
 router.get('/:movieId', function (req, res) {
