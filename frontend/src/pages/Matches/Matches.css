@@ -1,5 +1,40 @@
-.Counter-container {
+.Matches-container {
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  width: 100%;
+}
+
+.Matches-user .user {
+  font-size: 40px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+a {
+  color: white;
+}
+
+.Matches-user .score {
+  font-size: 20px;
+}
+
+.score strong, .length strong {
+  font-size: 40px;
+}
+
+.Matches-user .length {
+  font-size: 20px;
+}
+
+.Matches-user {
+  width: 100%;
+}
+
+.Matches-user-info {
+  width: 80%;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid white;
 }
